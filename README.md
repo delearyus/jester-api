@@ -2,7 +2,7 @@
 
 The API is simple at the moment, and has no authentication. This is it so far:
 
-'''
+```
 
 /api
 |-/posts
@@ -18,7 +18,7 @@ The API is simple at the moment, and has no authentication. This is it so far:
   |- DEL /:name - unfollow user :name
   +- POST / - follow a user
 
-'''
+```
 
 ## POST request bodies
 
@@ -44,25 +44,31 @@ url: url of blog (eg "localhost:3333" or "mycoolblog.com")
 + Authentication: All POST and DELETE requests should require an authentication
   token to be submitted as a cookie. this cookie can be obtained via:
 
+```
   /api/auth
   |- POST /login: submit username and password to create a session and receive
   |               a token
   +- DEL /login: log out (delete the current session) (requires auth token)
+```
 
   sessions will have their own DB schema:
+```javascript
     {
-        token: Mongoose ID
-        expires: date (by default, something like 24 hours after login or
-        something)
+        token: ID
+        expires: Date //by default, something like 24 hours after login or
+                      //something
     }
+```
   the DB will also have a local user collection (with one entry):
+```javascript
     {
         username: String,
-        password: String (hash of password, obvs),
-        url:      String, url to give out to people following the blog,
-        name:     String, blog name to give out to followers and put on posts,
-        (maybe some other data, as things progress?)
+        password: String, //hash of password, obvs
+        url:      String, //url to give out to people following the blog
+        name:     String, //blog name to give out to followers and put on posts
+        //maybe some other data, as things progress?
     }
+```
 
   on POST /login:
     + verify that username matches the one in localuser

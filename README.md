@@ -22,19 +22,19 @@ The API is simple at the moment, and has no authentication. This is it so far:
 
 ## POST request bodies
 
-/text:
-title: title of post
-body: main text of the post
-tags: comma separated list of tags, eg "heres,some,tags"
++ /text:
+  * title: title of post
+  * body: main text of the post
+  * tags: comma separated list of tags, eg "heres,some,tags"
 
-/image:
-url: url of image
-caption: text under image
-tags: same as /text
++ /image:
+  * url: url of image
+  * caption: text under image
+  * tags: same as /text
 
-/users:
-name: name of blog to follow
-url: url of blog (eg "localhost:3333" or "mycoolblog.com")
++ /users:
+  * name: name of blog to follow
+  * url: url of blog (eg "localhost:3333" or "mycoolblog.com")
 
 ## Next steps
 
@@ -70,37 +70,37 @@ url: url of blog (eg "localhost:3333" or "mycoolblog.com")
     }
 ```
 
-  on POST /login:
-    + verify that username matches the one in localuser
-    + hash the password and check it against the pwhash in localuser
-    + (if either do not match, return {success:false, message: "Invalid
-      Credentials"} (ie do not tell which one was wrong)
-    + Next, create a new session object with a randomly generated token (of
-      sufficient length),  and expires 1 day from now (or whatever)
-    + Return {success:true, token: [token]}, with a cookie header which also
-      contains the token so that it doesn't have to be dealt with manually
++ on POST /login:
+  + verify that username matches the one in localuser
+  + hash the password and check it against the pwhash in localuser
+  + (if either do not match, return {success:false, message: "Invalid
+    Credentials"} (ie do not tell which one was wrong)
+  + Next, create a new session object with a randomly generated token (of
+    sufficient length),  and expires 1 day from now (or whatever)
+  + Return {success:true, token: [token]}, with a cookie header which also
+    contains the token so that it doesn't have to be dealt with manually
 
-  on DEL /login:
-    + Check the cookie body, and get the token
-    + if the token does not exist, is not valid, or does not belong to an
-      active session, return {success: false, message: "Invalid token"}
-    + otherwise, delete the session and return {success:true, message:"session
-      deleted"}
++ on DEL /login:
+  + Check the cookie body, and get the token
+  + if the token does not exist, is not valid, or does not belong to an
+    active session, return {success: false, message: "Invalid token"}
+  + otherwise, delete the session and return {success:true, message:"session
+    deleted"}
   
-  on Auth Check:
-    + Get the auth token from the cookies (or from the post body if none in
-      cookies)
-    + check for any active sessions with the token, and make sure they have not
-      expired, then forward the request to the next middleware
-    + if session is expired, return {success:false,message:"Session Expired"}
-    + if token is invalid or nonexistant return {success:false,message:"Invalid
-      Token"}
++ on Auth Check:
+  + Get the auth token from the cookies (or from the post body if none in
+    cookies)
+  + check for any active sessions with the token, and make sure they have not
+    expired, then forward the request to the next middleware
+  + if session is expired, return {success:false,message:"Session Expired"}
+  + if token is invalid or nonexistant return {success:false,message:"Invalid
+    Token"}
 
 ## Generating a Dashboard
 
 this must be done through the front end, as it relies on external http requests
 
-Posts.service (or equivalent):
+### Posts.service (or equivalent):
 + get /users
 + for each user, check their last cached post from /cache/:user/last (tbi)
 + create an array of promises of requests to :userurl/posts?since=(date of last
@@ -110,7 +110,7 @@ Posts.service (or equivalent):
   onto each promise
 + return the list of promises
 
-example usage in a component:
+### example usage in a component:
 + run the function to immediately receive a promise[] object
 + subscribe to each promise to get its success or failure message
 + display some kind of progress bar the updates as promises return, with

@@ -6,17 +6,18 @@ const mongoose  = require('mongoose');
 const cookieparser = require('cookie-parser');
 
 const api       = require('./API/routes/api');
-const config    = require('./config/db');
+//const config    = require('./config/db');
+const database = "mongodb://localhost/jester2"
 
 const app = express();
-mongoose.connect(config.database, {useMongoClient: true});
+mongoose.connect(database, {useMongoClient: true});
 
 var db = mongoose.connection;
 
 db.on('error', console.error.bind(console, 'MongoDB connection error:'));
 
 //we want the server to run on port 3000
-const port = 3000;
+const port = 3001;
 
 //use the CORS middleware to enable Cross-Origin Requests (like fonts)
 app.use(cors());

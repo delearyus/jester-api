@@ -1,14 +1,10 @@
 const express = require('express');
-const Post    = require('./post.model.js');
-const User    = require('./user.model.js');
+const Post    = require('../models/post.js');
+const User    = require('../models/user.js');
 
 const router = express.Router();
 
-//
-// POSTS
-//
-
-router.get('/posts', (req,res) => {
+router.get('/', (req,res) => {
     let callback = (err,posts) => {
         if (err) {
             res.json({
@@ -31,7 +27,7 @@ router.get('/posts', (req,res) => {
     };
 });
 
-router.get('/posts/:id', (req,res) => {
+router.get('/:id', (req,res) => {
     let id = req.params.id;
     Post.getPost(id, (err,post) => {
         if (err) {
@@ -49,7 +45,7 @@ router.get('/posts/:id', (req,res) => {
     });
 });
 
-router.post('/posts/text', (req,res) => {
+router.post('/text', (req,res) => {
     let title = req.body.title;
     let body  = req.body.body;
     let tags  = req.body.tags.split(',');
@@ -73,7 +69,7 @@ router.post('/posts/text', (req,res) => {
     });
 });
 
-router.post('/posts/image', (req,res) => {
+router.post('/image', (req,res) => {
     let url = req.body.url;
     let caption = req.body.caption;
     let tags = req.body.tags.split(',');
@@ -98,7 +94,7 @@ router.post('/posts/image', (req,res) => {
 });
 
 
-router.delete('/posts/:id', (req,res) => {
+router.delete('/:id', (req,res) => {
     let id = req.params.id;
     Post.deletePostById(id, (err, msg) => {
         if (err) {
@@ -113,87 +109,6 @@ router.delete('/posts/:id', (req,res) => {
             });
         }
     });
-});
-
-//
-// USERS
-//
-
-router.get('/users', (req,res) => {
-    console.log("kdkfjahdkfjasdlkfa");
-    User.getAllFollowed( (err, users) => {
-        if (err) {
-            res.json({
-                route: "all users",
-                success: false,
-                message: `Error getting users: ${err}`
-            });
-        } else {
-            res.json({
-                success: true,
-                users: users
-            });
-        }
-    });
-});
-
-router.get('/users/:name', (req,res) => {
-    let name = req.params.name;
-    User.getUrl(name, (err, url) => {
-        if (err) {
-            res.json({
-                route: "get url",
-                success: false,
-                message: `Error getting user: ${err}`
-            });
-        } else {
-            res.json({
-                success: true,
-                url: url
-            });
-        }
-    });
-});
-
-router.post('/users', (req,res) => {
-    let name = req.body.name;
-    let url  = req.body.url;
-    User.follow(name,url, (err, msg) => {
-        if (err) {
-            res.json({
-                route: "follow",
-                success: false,
-                message: `Error following user: ${err}`
-            });
-        } else {
-            res.json({
-                success: true,
-                message: `User followed successfully`
-            });
-        }
-    });
-});
-
-router.delete('/users/:name', (req,res) => {
-    let name = req.params.name;
-    User.unfollow(name, (err,msg) => {
-        if (err) {
-            res.json({
-                route: "unfollow",
-                success: false,
-                message: `Error unfollowing user: ${err}`
-            });
-        } else {
-            res.json({
-                success: true,
-                message: "User successfully unfollowed"
-            });
-        }
-    });
-});
-
-router.all('*', (req,res) => {
-    res.send("API Still under construction :3");
 });
 
 module.exports = router;

@@ -1,22 +1,35 @@
 # Jester API
 
-The API is simple at the moment, and has no authentication. This is it so far:
+URIs that require authentication are marked with [A]
 
 ```
 
 /api
-|-/posts
+|
++-/posts
 | |-GET / - get all posts (optional ?since=date in query string)
 | |-GET /:id -  get post :id
-| |-DEL /:id - delete a post
-| |-POST /text - create a text post
-| +-POST /image - create an image post
+| |-DEL /:id - delete a post [A]
+| |-POST /text - create a text post [A]
+| +-POST /image - create an image post [A]
 |
 +-/users
-  |- GET / - get all users the local user follows
-  |- GET /:name - get the URL of user :name
-  |- DEL /:name - unfollow user :name
-  +- POST / - follow a user
+| |- GET / - get all users the local user follows
+| |- GET /:name - get the URL of user :name
+| |- DEL /:name - unfollow user :name [A]
+| +- POST / - follow a user [A]
+|
++-/login
+| |- POST / - provide username and password to log in
+| +- DEL  / - log out
+|
++-/config (mostly testing stuff) [A] for all items
+  |- GET / - get all localuser data (username, password hash, blog name, etc)
+  |- GET /logintest - deprecated
+  |- GET /authtest - deprecated
+  |- GET /createnew - reset the localuser to default values
+  +- POST /changepassword - change the password on the localuser account
+
 
 ```
 
@@ -36,65 +49,26 @@ The API is simple at the moment, and has no authentication. This is it so far:
   * name: name of blog to follow
   * url: url of blog (eg "localhost:3333" or "mycoolblog.com")
 
++ /login:
+  * username: username for localuser account
+  * password: password in plaintext
+
++ /config/changepassword:
+  * password: new password to use, in plaintext
+  (eventually will require old password and username)
+
 ## Next steps
 
-+ Local configuration: the local user is currently hardcoded as
-  {name:"delearyus",url:"localhost:3333"}, this should be configurable instead.
++ Local configuration: there is currently a local user schema with information,
+  but no direct way to edit this information, other than the password.
 
-+ Authentication: All POST and DELETE requests should require an authentication
-  token to be submitted as a cookie. this cookie can be obtained via:
++ Caching: API needs a way to store posts from other users to speed up the user
+  experience and keep track of which posts have been seen already
 
-```
-  /api/auth
-  |- POST /login: submit username and password to create a session and receive
-  |               a token
-  +- DEL /login: log out (delete the current session) (requires auth token)
-```
-
-  sessions will have their own DB schema:
-```javascript
-    {
-        token: ID
-        expires: Date //by default, something like 24 hours after login or
-                      //something
-    }
-```
-  the DB will also have a local user collection (with one entry):
-```javascript
-    {
-        username: String,
-        password: String, //hash of password, obvs
-        url:      String, //url to give out to people following the blog
-        name:     String, //blog name to give out to followers and put on posts
-        //maybe some other data, as things progress?
-    }
-```
-
-+ on POST /login:
-  + verify that username matches the one in localuser
-  + hash the password and check it against the pwhash in localuser
-  + (if either do not match, return {success:false, message: "Invalid
-    Credentials"} (ie do not tell which one was wrong)
-  + Next, create a new session object with a randomly generated token (of
-    sufficient length),  and expires 1 day from now (or whatever)
-  + Return {success:true, token: [token]}, with a cookie header which also
-    contains the token so that it doesn't have to be dealt with manually
-
-+ on DEL /login:
-  + Check the cookie body, and get the token
-  + if the token does not exist, is not valid, or does not belong to an
-    active session, return {success: false, message: "Invalid token"}
-  + otherwise, delete the session and return {success:true, message:"session
-    deleted"}
-  
-+ on Auth Check:
-  + Get the auth token from the cookies (or from the post body if none in
-    cookies)
-  + check for any active sessions with the token, and make sure they have not
-    expired, then forward the request to the next middleware
-  + if session is expired, return {success:false,message:"Session Expired"}
-  + if token is invalid or nonexistant return {success:false,message:"Invalid
-    Token"}
++ I changed my mind, the dashboard should be generated with the API. To add
+  better asynchronous support in the future, it might be best to use some kind
+  of socket interface to supply async updates on progress. socket.io is really
+  easy to use, so it shouldn't be to crazy I don't think
 
 ## Generating a Dashboard
 
